@@ -1,0 +1,28 @@
+1. Odpalić program NCS-Expert
+2. File
+3. Load profil
+4. Expertmodus
+5. Ok.
+6. F1
+7. F3
+8. Wybieramy Model np.: (E60 E90 itp.)
+9. Ok.
+10. Wybieramy CAS
+11. F2
+12. Wybieramy model np.: (E60 itp)
+13. OK.
+14. Wpisać w górnym okienku pozycje $6UD
+15. Add
+Usunać istniejące języki np. $851 jezyk niemiecki $853- jezyk angielski.
+16. OK.
+17. F6
+18. F4 (Proces ECU)
+19. Wybrać CAPPL
+20. OK.
+21. F3 Execiute Job
+22. Podlaczyć prostownik lub uruchomić pojazd
+23. Włożyć CD – do slotu DVD (zamiast płyty z nawigacją)
+24. Wygasnie nawigacja uruchomi się ekran updatu Host załaduje do 100% ( może w miedzy czasie się resetowac po czym załaduje APPL do 100%
+25. Urzadzenie będzie stalo na takim ekranie przez dłuższy czas po czym wygasnie i będzie czarny ekran przez 20 min (wszystko OK.)
+26. Nastepnie uruchomi się ekran update po chwili plyta wysunie się i nawigacja wykona restart .
+27. Zmienic jezyk na PL
