@@ -6,7 +6,7 @@ import Card from "@/components/card/Card";
 
 const LAMPORTS_PER_SOL = 1_000_000_000;
 
-const socket = io("http://localhost:4000", {
+const socket = io("https://solana-server-lr0k.onrender.com", {
   auth: { wallet: "frontend-user" }, // identyfikacja klienta
 });
 

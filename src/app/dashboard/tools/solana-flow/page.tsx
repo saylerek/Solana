@@ -9,7 +9,7 @@ import Notify from "@/components/Notify";
 import SelectBox from "@/components/SelectBox";
 import { parseColorTags } from "@/lib/parseColors";
 
-const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:4000";
+const SOCKET_URL = "https://solana-server-lr0k.onrender.com";
 
 export default function SolanaFlowPage() {
   const [logs, setLogs] = useState<string[]>([]);
