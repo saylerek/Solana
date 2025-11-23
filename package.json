@@ -9,6 +9,9 @@
   "lint": "eslint",
   "postinstall": "npm rebuild lightningcss"
   },
+  "engines": {
+  "node": "20.x"
+  },
   "dependencies": {
     "@prisma/client": "^6.16.2",
     "@solana/web3.js": "^1.98.4",
