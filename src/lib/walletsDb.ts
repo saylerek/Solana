@@ -1,9 +1,10 @@
-import { db } from "./db";
+import { db } from "./db"; // jeśli db.ts eksportuje PrismaClient
+import { WalletCategory } from "@prisma/client";
 
 export async function saveWallet(data: {
-  userId: string;      // tu poprawione!
+  userId: string;
   name: string;
-  category: string;
+  category: WalletCategory; // <-- zamiast string
   publicKey: string;
   secretKey: string;
 }) {
@@ -12,10 +13,10 @@ export async function saveWallet(data: {
   });
 }
 
-export async function getWalletsByCategory(userId: string, category: string) {
+export async function getWalletsByCategory(userId: string, category: WalletCategory) {
   return db.wallet.findMany({
     where: {
-      userId,        // poprawione pole
+      userId,
       category,
     },
   });

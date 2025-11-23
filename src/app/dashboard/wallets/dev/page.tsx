@@ -1,12 +1,28 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Card from "@/components/card/Card";
 
+interface Wallet {
+  publicKey: string;
+  privateKey?: string; // prywatny klucz może być opcjonalny
+  name: string;
+  category: "DEV" | "MAIN" | "BUNDLERS" | "CUSTOM";
+  balance?: number;
+}
+
+// Typ użytkownika
+interface User {
+  phantomWallet?: string;
+  name?: string;
+  // inne pola jeśli API je zwraca
+}
+
+
 export default function WalletsDevPage() {
-  const [wallets, setWallets] = useState<any[]>([]);
+  const [wallets, setWallets] = useState<Wallet[]>([]);
   const [search, setSearch] = useState("");
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
 
   // Modal state
   const [showModal, setShowModal] = useState(false);
@@ -24,16 +40,17 @@ export default function WalletsDevPage() {
     })();
   }, []);
 
-  async function refresh() {
-    if (!user?.phantomWallet) return;
-    const res = await fetch(`/api/wallets?userWallet=${user.phantomWallet}`);
-    const data = await res.json();
-    setWallets(data);
-  }
+const refresh = useCallback(async () => {
+  if (!user?.phantomWallet) return;
+  const res = await fetch(`/api/wallets?userWallet=${user.phantomWallet}`);
+  const data = await res.json();
+  setWallets(data);
+}, [user]);
 
+  
   useEffect(() => {
     refresh();
-  }, [user]);
+  }, [refresh]);
 
   async function handleCreate() {
     if (!user?.phantomWallet) return alert("User not logged in");
@@ -57,19 +74,21 @@ export default function WalletsDevPage() {
       setWalletCategory("DEV");
       setShowModal(false);
       await refresh();
-    } catch (err: any) {
-      alert(err.message);
-    }
+} catch (err: unknown) {
+  if (err instanceof Error) alert(err.message);
+  else alert("Unknown error");
+}
   }
 
   // filtrujemy tylko portfele DEV
-  const filtered = wallets
-    .filter((w) => w.category === "DEV")
-    .filter(
-      (w) =>
-        w.name.toLowerCase().includes(search.toLowerCase()) ||
-        w.publicKey.toLowerCase().includes(search.toLowerCase())
-    );
+const filtered = wallets
+  .filter((w) => w.category === "DEV")
+  .filter(
+    (w) =>
+      w.name.toLowerCase().includes(search.toLowerCase()) ||
+      w.publicKey.toLowerCase().includes(search.toLowerCase())
+  );
+
 
   return (
     <div className="flex flex-col gap-6 text-gray-200">

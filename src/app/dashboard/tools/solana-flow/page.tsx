@@ -68,7 +68,7 @@ export default function SolanaFlowPage() {
     socketRef.current = socket;
 
     socket.on("connect", () => console.log("Socket connected:", socket.id));
-    socket.on("log", (data) => setLogs(prev => [...prev, data.message]));
+    socket.on("log", (msg: { message: string }) => setLogs(prev => [...prev, msg.message]));
     socket.on("current-wallet", (data) => setCurrentWallet(data.wallet));
     socket.on("token-found", (data) => setFoundToken(data.token));
     socket.on("solanaFlow-done", (data) => handleDone());
@@ -109,27 +109,37 @@ socketRef.current.emit("start-solanaFlow", {
   retryCount,
   retryDelay,
   retryUnit
-}, (res: any) => {
-    if (res?.jobId) {
-      currentJobRef.current = res.jobId;
-      addLog(`Started monitoring job ${res.jobId} for ${wallet}`);
-      setIsScanning(true);
-    } else addLog("Failed to start monitoring");
-  });
+}, (res: unknown) => {
+  if (res && typeof res === "object" && "jobId" in res) {
+    const r = res as { jobId: string };
+    currentJobRef.current = r.jobId;
+    addLog(`Started monitoring job ${r.jobId} for ${wallet}`);
+    setIsScanning(true);
+  } else addLog("Failed to start monitoring");
+});
 };
 
 
-  const handleStop = () => {
-    const jobId = currentJobRef.current;
-    if (!jobId || !socketRef.current) return;
+const handleStop = () => {
+  const jobId = currentJobRef.current;
+  if (!jobId || !socketRef.current) return;
 
-    socketRef.current.emit("stop-solanaFlow", jobId, (res: any) => {
-      if (res?.stopped) {
+  socketRef.current.emit("stop-solanaFlow", jobId, (res: unknown) => {
+    // Type guard
+    if (res && typeof res === "object" && "stopped" in res) {
+      const result = res as { stopped: boolean };
+      if (result.stopped) {
         addLog("Monitoring stopped");
-      } else addLog("Stop failed");
-    });
-    handleDone();
-  };
+      } else {
+        addLog("Stop failed");
+      }
+    } else {
+      addLog("Stop failed (unexpected response)");
+    }
+  });
+
+  handleDone();
+};
 
   const handleCopyWallet = (text: string) => {
     navigator.clipboard.writeText(text);

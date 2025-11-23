@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Connection, Keypair, LAMPORTS_PER_SOL, PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
-import bs58 from "bs58";
+import { Connection, LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 import { getWalletsByCategory } from "@/lib/walletsDb";
 
 const connection = new Connection("https://api.devnet.solana.com");
@@ -29,7 +28,10 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ success: true, count: bundlers.length });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
-  }
+} catch (err: unknown) {
+    if (err instanceof Error) {
+        return NextResponse.json({ error: err.message }, { status: 500 });
+    }
+    return NextResponse.json({ error: "Unknown error" }, { status: 500 });
+}
 }

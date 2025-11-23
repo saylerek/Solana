@@ -4,15 +4,25 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { signAndLoginWithPhantom } from "@/lib/phantomClient";
 
+interface User {
+  phantomWallet: string;
+  balance?: number;
+  role?: string;
+}
+
 declare global {
   interface Window {
-    solana?: any;
+    solana?: {
+      isPhantom?: boolean;
+      connect: () => Promise<{ publicKey: { toString(): string } }>;
+      signMessage: (msg: Uint8Array, encoding: string) => Promise<{ signature: Uint8Array }>;
+    };
   }
 }
 
 export default function Page() {
   const router = useRouter();
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(false);
 
   // sprawdzamy czy użytkownik już jest zalogowany (sesja w cookies)

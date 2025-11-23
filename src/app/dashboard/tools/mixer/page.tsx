@@ -10,6 +10,30 @@ const socket = io("http://localhost:4000", {
   auth: { wallet: "frontend-user" }, // identyfikacja klienta
 });
 
+interface Wallet {
+  publicKey: string;
+  privateKey: string;
+  name: string;
+  category: "DEV" | "MAIN" | "BUNDLERS" | "CUSTOM";
+}
+
+// Typ użytkownika
+interface User {
+  phantomWallet?: string;
+  name?: string;
+  // tu możesz dodać inne pola z API
+}
+
+// Typ logów mixera
+interface MixerLogMessage {
+  message: string;
+}
+
+// Typ dla zakończenia miksowania
+interface MixCompleteMessage {
+  success: boolean;
+}
+
 export default function MixerPage() {
   const [numWallets, setNumWallets] = useState(3);
   const [finalWallet, setFinalWallet] = useState("");
@@ -18,14 +42,14 @@ export default function MixerPage() {
 
   // nowy stan do wyboru startowego portfela
   const [walletCategory, setWalletCategory] = useState<"DEV" | "MAIN" | "BUNDLERS" | "CUSTOM">("DEV");
-  const [availableWallets, setAvailableWallets] = useState<any[]>([]);
+  const [availableWallets, setAvailableWallets] = useState<Wallet[]>([]);
   const [selectedWallet, setSelectedWallet] = useState("");
   const [customSecret, setCustomSecret] = useState("");
 
   const [currentStep, setCurrentStep] = useState(0);
 
   // pobieranie usera i portfeli
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   useEffect(() => {
     (async () => {
       const res = await fetch("/api/auth/me");
@@ -42,7 +66,7 @@ export default function MixerPage() {
       const res = await fetch(`/api/wallets?userWallet=${user.phantomWallet}`);
       const data = await res.json();
       // filtrujemy portfele wg kategorii
-      const filtered = data.filter((w: any) => w.category === walletCategory);
+      const filtered = (data as Wallet[]).filter((w) => w.category === walletCategory);
       setAvailableWallets(filtered);
       if (filtered.length > 0) setSelectedWallet(filtered[0].publicKey);
     }
@@ -53,19 +77,20 @@ export default function MixerPage() {
 
   // nasłuch logów
   useEffect(() => {
-  const handleLog = (msg: any) => {
-    setLogs((prev) => [...prev, msg.message]);
-    const match = msg.message.match(/step (\d+)\/(\d+)/);
-    if (match) {
-      setCurrentStep(Number(match[1]));
-    }
-  };
+  const handleLog = (msg: MixerLogMessage) => {
+  setLogs((prev) => [...prev, msg.message]);
+  const match = msg.message.match(/step (\d+)\/(\d+)/);
+  if (match) {
+    setCurrentStep(Number(match[1]));
+  }
+};
 
-  const handleComplete = ({ success }: any) => {
-    setIsMixing(false);
-    setCurrentStep(0);
-    setLogs((prev) => [...prev, success ? "✅ Mix complete" : "❌ Mix failed"]);
-  };
+const handleComplete = (msg: MixCompleteMessage) => {
+  const { success } = msg;
+  setIsMixing(false);
+  setCurrentStep(0);
+  setLogs((prev) => [...prev, success ? "✅ Mix complete" : "❌ Mix failed"]);
+};
 
   socket.on("mixer-log", handleLog);
   socket.on("mix-complete", handleComplete);
@@ -132,7 +157,7 @@ export default function MixerPage() {
             <label className="text-sm">Start wallet category</label>
             <select
               value={walletCategory}
-              onChange={(e) => setWalletCategory(e.target.value as any)}
+              onChange={(e) => setWalletCategory(e.target.value as "DEV" | "MAIN" | "BUNDLERS" | "CUSTOM")}
               className="w-full rounded-md bg-[#141322] border border-white/10 px-3 py-2 text-sm text-white"
             >
               <option value="DEV">DEV</option>

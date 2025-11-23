@@ -6,7 +6,7 @@ export async function requestNonce() {
 }
 
 export async function signAndLoginWithPhantom() {
-  const provider = (window as any).solana;
+  const provider = window.solana;
   if (!provider?.isPhantom) throw new Error("No Phantom wallet");
 
   // 1) pobierz nonce

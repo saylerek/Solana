@@ -4,6 +4,7 @@ import nacl from "tweetnacl";
 import bs58 from "bs58";
 import { db } from "@/lib/db";
 import { getServerSession } from "@/lib/authServer";
+import crypto from "crypto";
 
 export async function POST(request: NextRequest) {
   try {
@@ -44,7 +45,7 @@ export async function POST(request: NextRequest) {
       include: { wallets: true },
     });
 if (!user) {
-  const serverSecret = Buffer.from(require("crypto").randomBytes(32)).toString("hex");
+  const serverSecret = crypto.randomBytes(32).toString("hex");
   user = await db.user.create({
     data: {
       phantomWallet,
